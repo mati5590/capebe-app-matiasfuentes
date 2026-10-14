@@ -1,6 +1,8 @@
 package com.example.capebe.ui.navigation
 
 
+
+import android.content.Context
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -12,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,6 +32,7 @@ import com.example.capebe.ui.viewmodel.SessionViewModel
 fun AppNavigation() {
     val navController = rememberNavController()
     val sessionViewModel: SessionViewModel = viewModel()
+    val context = LocalContext.current // Necesario para acceder a las preferencias del teléfono
 
     NavHost(
         navController = navController,
@@ -45,6 +49,17 @@ fun AppNavigation() {
                 viewModel = loginViewModel,
                 onRegisterClick = { navController.navigate("registro") },
                 onSuccess = { loggedUser ->
+                    // 1. GUARDAMOS EL USUARIO EN LA MEMORIA DEL TELÉFONO
+                    val sharedPref = context.getSharedPreferences("CAPEBE_PREFS", Context.MODE_PRIVATE)
+                    sharedPref.edit().apply {
+                        putInt("USER_ID", loggedUser.id)
+                        putString("USER_NAME", loggedUser.nombreCompleto)
+                        putString("USER_RUT", loggedUser.rut)
+                        putString("USER_EMAIL", loggedUser.email)
+                        putString("USER_CAT", loggedUser.categoria)
+                        apply()
+                    }
+
                     sessionViewModel.loginUser(loggedUser)
                     navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
@@ -69,7 +84,6 @@ fun AppNavigation() {
             Home(
                 userName = primerNombre,
                 onNavigateToPerfil = { navController.navigate("perfil") },
-                // NUEVO: Conectamos el Home con Actividades
                 onNavigateToActividades = { navController.navigate("actividades") }
             )
         }
@@ -91,15 +105,16 @@ fun AppNavigation() {
                 categoria = usuarioActual?.categoria ?: "Socio",
                 onEditarClick = { navController.navigate("editar_perfil") },
                 onCerrarSesionClick = {
+                    // 2. BORRAMOS LA MEMORIA SI DECIDE CERRAR SESIÓN MANUALMENTE
+                    val sharedPref = context.getSharedPreferences("CAPEBE_PREFS", Context.MODE_PRIVATE)
+                    sharedPref.edit().clear().apply()
+
                     sessionViewModel.logout()
                     navController.navigate("login") {
                         popUpTo(0)
                     }
                 },
-                onNavigateHome = {
-                    navController.navigateUp()
-                },
-                // NUEVO: Conectamos el Perfil con Actividades
+                onNavigateHome = { navController.navigateUp() },
                 onNavigateActividades = { navController.navigate("actividades") }
             )
         }
