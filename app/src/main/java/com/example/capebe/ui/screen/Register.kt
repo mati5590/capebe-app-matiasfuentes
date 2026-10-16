@@ -1,23 +1,29 @@
 package com.example.capebe.ui.screen
 
 
-
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Badge
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.capebe.ui.viewmodel.RegisterViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Register(
     viewModel: RegisterViewModel,
@@ -47,240 +54,318 @@ fun Register(
         }
     }
 
+    // CONTENEDOR PRINCIPAL: Fondo Azul Oscuro
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFAFAFA))
+            .background(Color(0xFF0C2E5C))
+            .drawBehind {
+                // Dibujamos SOLO los círculos del radar en la esquina superior derecha
+                val circleCenter = androidx.compose.ui.geometry.Offset(size.width * 0.85f, size.height * 0.1f)
+
+                drawCircle(color = Color.White.copy(alpha = 0.03f), radius = size.height * 0.35f, center = circleCenter)
+                drawCircle(color = Color.White.copy(alpha = 0.05f), radius = size.height * 0.2f, center = circleCenter)
+                drawCircle(color = Color.White.copy(alpha = 0.08f), radius = size.height * 0.1f, center = circleCenter)
+            }
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .size(160.dp)
-                .offset(x = 40.dp, y = (-40).dp)
-                .clip(RoundedCornerShape(bottomStart = 120.dp))
-                .background(Color(0xFFE8F1FA))
-        )
+        Column(modifier = Modifier.fillMaxSize()) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 28.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            // SECCIÓN SUPERIOR: Header Azul
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
-                IconButton(
-                    onClick = onLoginClick,
-                    modifier = Modifier.offset(x = (-12).dp)
+                // Fila Superior: Botón Atrás y Logo
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Volver al inicio de sesión",
-                        tint = Color(0xFF0C2E5C)
-                    )
+                    // Botón circular de retroceso
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.15f))
+                            .clickable { onLoginClick() }
+                    ) {
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                    }
+
+                    // Logo Pequeño CAPEBE
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.White)
+                        ) {
+                            Icon(imageVector = Icons.Default.Flight, contentDescription = null, tint = Color(0xFF0C2E5C), modifier = Modifier.size(18.dp))
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "CAPEBE", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, letterSpacing = 1.sp)
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Textos de Bienvenida
+                Text("Crea tu cuenta", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Regístrate para participar en las actividades de\nCAPEBE",
+                    fontSize = 13.sp,
+                    color = Color.White.copy(alpha = 0.85f),
+                    lineHeight = 18.sp
+                )
+                Spacer(modifier = Modifier.height(20.dp)) // Espacio antes del contenedor blanco
             }
 
-            Spacer(modifier = Modifier.height(30.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    contentAlignment = Alignment.Center,
+            // SECCIÓN INFERIOR: Formulario Blanco Redondeado
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                color = Color(0xFFFAFAFA)
+            ) {
+                Column(
                     modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFF0C2E5C))
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Flight,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Input: Nombre Completo
+                    OutlinedTextField(
+                        value = uiState.nombreCompleto,
+                        onValueChange = { viewModel.onNombreCompletoChanged(it) },
+                        label = { Text("Nombre completo") },
+                        leadingIcon = { Icon(Icons.Outlined.Person, null, tint = Color.Gray) },
+                        trailingIcon = {
+                            if (uiState.nombreCompleto.isNotBlank()) {
+                                Icon(Icons.Default.CheckCircleOutline, contentDescription = null, tint = Color(0xFF198754))
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF0C2E5C), unfocusedBorderColor = Color(0xFFCCCCCC)
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                     )
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "CAPEBE",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0C2E5C)
-                )
-            }
 
-            Spacer(modifier = Modifier.height(30.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            Text("Crea tu cuenta", fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF0C2E5C))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Regístrate para participar en las actividades de CAPEBE", fontSize = 14.sp, color = Color(0xFF5A5A5A))
+                    // Input: RUT
+                    OutlinedTextField(
+                        value = uiState.rut,
+                        onValueChange = { viewModel.onRutChanged(it) },
+                        label = { Text("RUT", color = Color(0xFF0C2E5C)) }, // Simula estado activo
+                        leadingIcon = { Icon(Icons.Outlined.Badge, null, tint = Color.Gray) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF0C2E5C),
+                            unfocusedBorderColor = Color(0xFF0C2E5C), // Borde azul por defecto como en mockup
+                            focusedLabelColor = Color(0xFF0C2E5C),
+                            unfocusedLabelColor = Color(0xFF0C2E5C)
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+                    )
 
-            Spacer(modifier = Modifier.height(28.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            Text("Nombre completo", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
-            OutlinedTextField(
-                value = uiState.nombreCompleto,
-                onValueChange = { viewModel.onNombreCompletoChanged(it) },
-                placeholder = { Text("Nombre Completo") },
-                leadingIcon = { Icon(Icons.Default.Person, null, tint = Color(0xFF0C2E5C)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true, // Solución implementada
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next) // Avanza al siguiente
-            )
+                    // Input: Correo
+                    OutlinedTextField(
+                        value = uiState.email,
+                        onValueChange = { viewModel.onEmailChanged(it) },
+                        label = { Text("Correo electrónico", color = Color.Gray) },
+                        leadingIcon = { Icon(Icons.Outlined.Email, null, tint = Color.Gray) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF0C2E5C), unfocusedBorderColor = Color(0xFFCCCCCC)
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
+                    )
 
-            Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            Text("RUT", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
-            OutlinedTextField(
-                value = uiState.rut,
-                onValueChange = { viewModel.onRutChanged(it) },
-                placeholder = { Text("RUT") },
-                leadingIcon = { Icon(Icons.Default.Badge, null, tint = Color(0xFF0C2E5C)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true, // Solución implementada
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next) // Avanza al siguiente
-            )
+                    // Input: Contraseña
+                    OutlinedTextField(
+                        value = uiState.password,
+                        onValueChange = { viewModel.onPasswordChanged(it) },
+                        label = { Text("Contraseña", color = Color.Gray) },
+                        leadingIcon = { Icon(Icons.Outlined.Lock, null, tint = Color.Gray) },
+                        trailingIcon = {
+                            IconButton(onClick = { passVisible = !passVisible }) {
+                                Icon(if (passVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, null, tint = Color.Gray)
+                            }
+                        },
+                        visualTransformation = if (passVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF0C2E5C), unfocusedBorderColor = Color(0xFFCCCCCC)
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next)
+                    )
 
-            Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            Text("Correo electrónico", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
-            OutlinedTextField(
-                value = uiState.email,
-                onValueChange = { viewModel.onEmailChanged(it) },
-                placeholder = { Text("Correo electrónico") },
-                leadingIcon = { Icon(Icons.Default.Email, null, tint = Color(0xFF0C2E5C)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true, // Solución implementada
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next) // Avanza al siguiente
-            )
+                    // Input: Confirmar Contraseña
+                    OutlinedTextField(
+                        value = uiState.confirmPassword,
+                        onValueChange = { viewModel.onConfirmPasswordChanged(it) },
+                        label = { Text("Confirmar contraseña", color = Color.Gray) },
+                        leadingIcon = { Icon(Icons.Outlined.Lock, null, tint = Color.Gray) },
+                        trailingIcon = {
+                            IconButton(onClick = { confirmPassVisible = !confirmPassVisible }) {
+                                Icon(if (confirmPassVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, null, tint = Color.Gray)
+                            }
+                        },
+                        visualTransformation = if (confirmPassVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF0C2E5C), unfocusedBorderColor = Color(0xFFCCCCCC)
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done)
+                    )
 
-            Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Contraseña", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
-            OutlinedTextField(
-                value = uiState.password,
-                onValueChange = { viewModel.onPasswordChanged(it) },
-                placeholder = { Text("Contraseña") },
-                leadingIcon = { Icon(Icons.Default.Lock, null, tint = Color(0xFF0C2E5C)) },
-                trailingIcon = {
-                    IconButton(onClick = { passVisible = !passVisible }) {
-                        Icon(if (passVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, null)
+                    // Categoría del participante
+                    Text("Categoría del participante", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF222222))
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Opción: Socio CAPEBE
+                    val isSocio = uiState.categoria == "Socio CAPEBE"
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween, // Separa el radio del texto y el check final
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(if (isSocio) Color(0xFFE8F1FA) else Color.Transparent)
+                            .border(
+                                width = if (isSocio) 1.5.dp else 1.dp,
+                                color = if (isSocio) Color(0xFF0C2E5C) else Color(0xFFCCCCCC),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .clickable { viewModel.onCategoriaChanged("Socio CAPEBE") }
+                            .padding(horizontal = 16.dp, vertical = 14.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = if (isSocio) Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
+                                contentDescription = null,
+                                tint = if (isSocio) Color(0xFF0C2E5C) else Color.Gray,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("Socio CAPEBE", fontSize = 14.sp, fontWeight = if (isSocio) FontWeight.Bold else FontWeight.Normal, color = if (isSocio) Color(0xFF0C2E5C) else Color(0xFF5A5A5A))
+                        }
+                        if (isSocio) {
+                            Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF0C2E5C), modifier = Modifier.size(20.dp))
+                        }
                     }
-                },
-                visualTransformation = if (passVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true, // Solución implementada
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next) // Avanza al siguiente
-            )
 
-            Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-            Text("Confirmar contraseña", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
-            OutlinedTextField(
-                value = uiState.confirmPassword,
-                onValueChange = { viewModel.onConfirmPasswordChanged(it) },
-                placeholder = { Text("Confirmar contraseña") },
-                leadingIcon = { Icon(Icons.Default.Lock, null, tint = Color(0xFF0C2E5C)) },
-                trailingIcon = {
-                    IconButton(onClick = { confirmPassVisible = !confirmPassVisible }) {
-                        Icon(if (confirmPassVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, null)
+                    // Opción: Beneficiario
+                    // Opción: Beneficiario
+                    val isBeneficiario = uiState.categoria == "Beneficiario"
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(if (isBeneficiario) Color(0xFFE8F1FA) else Color.Transparent)
+                            .border(
+                                width = if (isBeneficiario) 1.5.dp else 1.dp,
+                                color = if (isBeneficiario) Color(0xFF0C2E5C) else Color(0xFFCCCCCC),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .clickable { viewModel.onCategoriaChanged("Beneficiario") }
+                            .padding(horizontal = 16.dp, vertical = 14.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = if (isBeneficiario) Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
+                                contentDescription = null,
+                                tint = if (isBeneficiario) Color(0xFF0C2E5C) else Color.Gray,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            // TEXTO CORREGIDO: "Beneficiario de Bienestar BancoEstado"
+                            Text("Beneficiario de Bienestar BancoEstado", fontSize = 14.sp, fontWeight = if (isBeneficiario) FontWeight.Bold else FontWeight.Normal, color = if (isBeneficiario) Color(0xFF0C2E5C) else Color(0xFF5A5A5A))
+                        }
+                        if (isBeneficiario) {
+                            Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF0C2E5C), modifier = Modifier.size(20.dp))
+                        }
                     }
-                },
-                visualTransformation = if (confirmPassVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true, // Solución implementada
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done) // Cierra el teclado
-            )
 
-            Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Categoría del participante", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
-            Spacer(modifier = Modifier.height(8.dp))
+                    // Checkbox Términos
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = uiState.terminosAceptados,
+                            onCheckedChange = { viewModel.onTerminosChanged(it) },
+                            colors = CheckboxDefaults.colors(checkedColor = Color(0xFF0C2E5C), checkmarkColor = Color.White)
+                        )
+                        Text(
+                            text = "Acepto los Términos y condiciones y la Política de privacidad",
+                            fontSize = 11.sp,
+                            color = Color(0xFF5A5A5A),
+                            modifier = Modifier.padding(start = 4.dp),
+                            lineHeight = 16.sp
+                        )
+                    }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (uiState.categoria == "Socio CAPEBE") Color(0xFFE8F1FA) else Color.Transparent)
-                    .clickable { viewModel.onCategoriaChanged("Socio CAPEBE") }
-                    .padding(12.dp)
-            ) {
-                RadioButton(
-                    selected = (uiState.categoria == "Socio CAPEBE"),
-                    onClick = { viewModel.onCategoriaChanged("Socio CAPEBE") },
-                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF0C2E5C))
-                )
-                Text("Socio CAPEBE", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0C2E5C))
-            }
+                    Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (uiState.categoria == "Beneficiario") Color(0xFFE8F1FA) else Color.Transparent)
-                    .clickable { viewModel.onCategoriaChanged("Beneficiario") }
-                    .padding(12.dp)
-            ) {
-                RadioButton(
-                    selected = (uiState.categoria == "Beneficiario"),
-                    onClick = { viewModel.onCategoriaChanged("Beneficiario") },
-                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF0C2E5C))
-                )
-                Text("Beneficiario de Bienestar BancoEstado", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0C2E5C))
-            }
+                    // Botón Principal
+                    Button(
+                        onClick = { viewModel.onRegisterClick(context, onSuccess = onSuccess) },
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0C2E5C)),
+                        shape = RoundedCornerShape(26.dp)
+                    ) {
+                        Text("Crear cuenta", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
 
-            Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = uiState.terminosAceptados,
-                    onCheckedChange = { viewModel.onTerminosChanged(it) },
-                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFF0C2E5C))
-                )
-                Text(
-                    text = "Acepto los Términos y condiciones y la Política de privacidad",
-                    fontSize = 11.sp,
-                    color = Color(0xFF5A5A5A),
-                    modifier = Modifier.padding(start = 4.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    viewModel.onRegisterClick(context, onSuccess = onSuccess)
-                },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0C2E5C)),
-                shape = RoundedCornerShape(26.dp)
-            ) {
-                Text("Crear cuenta", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "¿Ya tienes una cuenta? ", fontSize = 13.sp, color = Color(0xFF5A5A5A))
-                TextButton(onClick = onLoginClick, contentPadding = PaddingValues(0.dp)) {
-                    Text("Inicia sesión", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
+                    // Enlace Iniciar Sesión
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "¿Ya tienes una cuenta? ", fontSize = 13.sp, color = Color(0xFF5A5A5A))
+                        TextButton(onClick = onLoginClick, contentPadding = PaddingValues(0.dp)) {
+                            Text("Inicia sesión", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(40.dp)) // Extra padding al fondo
                 }
             }
-            Spacer(modifier = Modifier.height(30.dp))
         }
     }
 }
