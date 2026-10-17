@@ -6,8 +6,10 @@ import android.widget.Toast
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -24,7 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -96,181 +102,209 @@ fun Login(
         }
     }
 
-    // CONTENEDOR PRINCIPAL: Fondo Azul Oscuro sin la línea punteada
+    // CONTENEDOR PRINCIPAL
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0C2E5C))
-            .drawBehind {
-                // Dibujamos SOLO los círculos del radar
-                val circleCenter = androidx.compose.ui.geometry.Offset(size.width * 0.85f, size.height * 0.2f)
-
-                drawCircle(color = Color.White.copy(alpha = 0.03f), radius = size.height * 0.4f, center = circleCenter)
-                drawCircle(color = Color.White.copy(alpha = 0.05f), radius = size.height * 0.25f, center = circleCenter)
-                drawCircle(color = Color.White.copy(alpha = 0.08f), radius = size.height * 0.12f, center = circleCenter)
-            }
+            .background(Color.White)
+            // IMPORTANTE: Los paddings van ANTES del drawBehind para que las coordenadas coincidan
             .statusBarsPadding()
             .navigationBarsPadding()
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-
-            // SECCIÓN SUPERIOR: Logo y Avión
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(260.dp)
-                    .padding(horizontal = 28.dp, vertical = 40.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(Color.White)
-                    ) {
-                        Icon(imageVector = Icons.Default.Flight, contentDescription = "Vuelo", tint = Color(0xFF0C2E5C), modifier = Modifier.size(28.dp))
-                    }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column {
-                        Text(text = "CAPEBE", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, letterSpacing = 2.sp)
-                        Text(text = "Club Aéreo del Personal de BancoEstado", fontSize = 11.sp, color = Color.White.copy(alpha = 0.9f))
-                    }
-                }
-
-                Icon(
-                    imageVector = Icons.Default.Flight,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .align(Alignment.TopEnd)
-                        .offset(x = 10.dp, y = 70.dp)
+            .drawBehind {
+                val strokeColor = Color(0xFFE2E8F0)
+                // Centro exacto alineado matemáticamente con la caja del avión (X=68dp, Y=100dp)
+                val circleCenter = androidx.compose.ui.geometry.Offset(
+                    x = size.width - 68.dp.toPx(),
+                    y = 100.dp.toPx()
                 )
+
+                drawCircle(color = strokeColor, radius = 55.dp.toPx(), center = circleCenter, style = Stroke(width = 2f))
+                drawCircle(color = strokeColor, radius = 110.dp.toPx(), center = circleCenter, style = Stroke(width = 2f))
+                drawCircle(color = strokeColor, radius = 165.dp.toPx(), center = circleCenter, style = Stroke(width = 2f))
+            }
+    ) {
+        // Círculo celeste con el avión (Más arriba y enlazado al centro del radar)
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                // Offset Y bajado a 62dp (Centro = 62 + 38 de radio = 100dp exactos)
+                .offset(x = (-30).dp, y = 62.dp)
+                .size(76.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFE8F1FA))
+        ) {
+            Icon(
+                imageVector = Icons.Default.Flight,
+                contentDescription = null,
+                tint = Color(0xFF0C2E5C),
+                modifier = Modifier
+                    .size(36.dp)
+                    .rotate(-90f) // Esto rota el avión para que apunte hacia la izquierda-arriba
+            )
+        }
+
+        // Formulario Scrolleable
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 28.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // SECCIÓN SUPERIOR: Logo y Texto CAPEBE
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .shadow(elevation = 16.dp, shape = RoundedCornerShape(14.dp), spotColor = Color(0xFF0C2E5C))
+                        .background(Color(0xFF0C2E5C), RoundedCornerShape(14.dp))
+                ) {
+                    Icon(imageVector = Icons.Default.Flight, contentDescription = "Vuelo", tint = Color.White, modifier = Modifier.size(28.dp))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(text = "CAPEBE", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF0C2E5C), letterSpacing = 2.sp)
+                    Text(text = "Club Aéreo del Personal de BancoEstado", fontSize = 11.sp, color = Color(0xFF5A5A5A))
+                }
             }
 
-            // SECCIÓN INFERIOR: Formulario Blanco Redondeado
-            Surface(
+            Spacer(modifier = Modifier.height(60.dp))
+
+            // Títulos de bienvenida
+            Text(text = "¡Bienvenido a CAPEBE!", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF0C2E5C))
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = "Accede a tu cuenta y prepárate para tu próxima experiencia de vuelo", fontSize = 15.sp, color = Color(0xFF5A5A5A), lineHeight = 22.sp)
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Input: Correo
+            OutlinedTextField(
+                value = uiState.email,
+                onValueChange = { viewModel.onEmailChanged(it) },
+                label = { Text("Correo electrónico") },
+                leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null, tint = Color(0xFF0C2E5C)) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF0C2E5C),
+                    unfocusedBorderColor = Color(0xFF0C2E5C),
+                    focusedLabelColor = Color(0xFF0C2E5C),
+                    unfocusedLabelColor = Color(0xFF0C2E5C)
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Input: Contraseña
+            OutlinedTextField(
+                value = uiState.password,
+                onValueChange = { viewModel.onPasswordChanged(it) },
+                label = { Text("Contraseña", color = Color.Gray) },
+                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null, tint = Color.Gray) },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, contentDescription = null, tint = Color.Gray)
+                    }
+                },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF0C2E5C),
+                    unfocusedBorderColor = Color(0xFFCCCCCC)
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Fila: Recordarme y Olvidaste contraseña
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = rememberMe,
+                        onCheckedChange = { rememberMe = it },
+                        colors = CheckboxDefaults.colors(checkedColor = Color(0xFF0C2E5C), checkmarkColor = Color.White)
+                    )
+                    Text(text = "Recordarme", fontSize = 14.sp, color = Color(0xFF222222))
+                }
+                TextButton(onClick = {  }) {
+                    Text(text = "¿Olvidaste tu contraseña?", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Botón Principal con Degradado y Sombra
+            Button(
+                onClick = { viewModel.onLoginClick(context, onSuccess = onSuccess) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-                color = Color(0xFFFAFAFA)
+                    .height(56.dp)
+                    .shadow(elevation = 10.dp, shape = RoundedCornerShape(28.dp), spotColor = Color(0xFF0C2E5C)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                contentPadding = PaddingValues(),
+                shape = RoundedCornerShape(28.dp)
             ) {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 28.dp)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Spacer(modifier = Modifier.height(36.dp))
-
-                    Text(text = "¡Bienvenido a CAPEBE!", fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF0C2E5C))
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = "Accede a tu cuenta y prepárate para tu próxima experiencia de vuelo", fontSize = 14.sp, color = Color(0xFF5A5A5A), lineHeight = 20.sp)
-
-                    Spacer(modifier = Modifier.height(36.dp))
-
-                    // Input: Correo
-                    OutlinedTextField(
-                        value = uiState.email,
-                        onValueChange = { viewModel.onEmailChanged(it) },
-                        label = { Text("Correo electrónico") },
-                        leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null, tint = Color(0xFF0C2E5C)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF0C2E5C),
-                            unfocusedBorderColor = Color(0xFF0C2E5C),
-                            focusedLabelColor = Color(0xFF0C2E5C),
-                            unfocusedLabelColor = Color(0xFF0C2E5C)
-                        ),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Input: Contraseña
-                    OutlinedTextField(
-                        value = uiState.password,
-                        onValueChange = { viewModel.onPasswordChanged(it) },
-                        label = { Text("Contraseña", color = Color.Gray) },
-                        leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null, tint = Color.Gray) },
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, contentDescription = null, tint = Color.Gray)
-                            }
-                        },
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF0C2E5C),
-                            unfocusedBorderColor = Color(0xFFCCCCCC)
-                        ),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Fila: Recordarme y Olvidaste contraseña
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(
-                                checked = rememberMe,
-                                onCheckedChange = { rememberMe = it },
-                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF0C2E5C), checkmarkColor = Color.White)
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(Color(0xFF092A59), Color(0xFF194A8D))
                             )
-                            Text(text = "Recordarme", fontSize = 13.sp, color = Color(0xFF222222))
-                        }
-                        TextButton(onClick = {  }) {
-                            Text(text = "¿Olvidaste tu contraseña?", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    // Botón Principal
-                    Button(
-                        onClick = { viewModel.onLoginClick(context, onSuccess = onSuccess) },
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0C2E5C)),
-                        shape = RoundedCornerShape(26.dp)
-                    ) {
-                        Text(text = "Iniciar sesión", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    }
-
-                    // Botón de Huella
-                    Spacer(modifier = Modifier.height(12.dp))
-                    if (activity != null) {
-                        OutlinedButton(
-                            onClick = { viewModel.onBiometricLoginClick(context, activity, onSuccess) },
-                            modifier = Modifier.fillMaxWidth().height(52.dp),
-                            shape = RoundedCornerShape(26.dp),
-                            border = BorderStroke(1.dp, Color(0xFF0C2E5C))
-                        ) {
-                            Icon(Icons.Default.Fingerprint, contentDescription = "Huella Digital", tint = Color(0xFF0C2E5C))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Ingresar con Huella", color = Color(0xFF0C2E5C), fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    // Enlace de Registro
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "¿No tienes una cuenta? ", fontSize = 13.sp, color = Color(0xFF5A5A5A))
-                        TextButton(onClick = onRegisterClick, contentPadding = PaddingValues(0.dp)) {
-                            Text(text = "Regístrate", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C2E5C))
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(32.dp))
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Iniciar sesión", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón de Huella
+            if (activity != null) {
+                OutlinedButton(
+                    onClick = { viewModel.onBiometricLoginClick(context, activity, onSuccess) },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    border = BorderStroke(1.5.dp, Color(0xFF0C2E5C))
+                ) {
+                    Icon(Icons.Default.Fingerprint, contentDescription = "Huella Digital", tint = Color(0xFF0C2E5C), modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Ingresar con huella", color = Color(0xFF0C2E5C), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            }
+
+            // Espacio de resguardo para que el scroll no quede tapado por el botón inferior
+            Spacer(modifier = Modifier.height(100.dp))
+        }
+
+        // TEXTO REGÍSTRATE ANCLADO AL FONDO
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(vertical = 24.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "¿No tienes una cuenta? ", fontSize = 14.sp, color = Color(0xFF5A5A5A))
+            Text(
+                text = "Regístrate",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0C2E5C),
+                modifier = Modifier.clickable { onRegisterClick() }
+            )
         }
     }
 }
