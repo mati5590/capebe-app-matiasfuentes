@@ -2,7 +2,6 @@ package com.example.capebe.ui.screen
 
 
 
-
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,9 +24,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -68,11 +70,41 @@ fun Register(
         Column(modifier = Modifier.fillMaxSize()) {
 
             // ==========================================
-            // 1. ENCABEZADO FIJO (Minimalista)
+            // 1. ENCABEZADO FIJO (Minimalista con Radar Sutil)
             // ==========================================
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clipToBounds() // Candado visual para que la línea del radar no toque el formulario
+                    .drawBehind {
+                        val strokeColor = Color(0xFFF1F5F9) // Gris ultra suave para la línea sutil
+                        val circleCenter = androidx.compose.ui.geometry.Offset(
+                            x = size.width - 50.dp.toPx(),
+                            y = 74.dp.toPx()
+                        )
+                        // Un solo anillo sutil como en el diseño minimalista
+                        drawCircle(color = strokeColor, radius = 110.dp.toPx(), center = circleCenter, style = Stroke(width = 3f))
+                    }
             ) {
+                // Círculo celeste con el avión rotado en la esquina
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = (-24).dp, y = 36.dp)
+                        .size(76.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE8F1FA))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Flight,
+                        contentDescription = null,
+                        tint = Color(0xFF0C2E5C),
+                        modifier = Modifier.size(36.dp).rotate(-45f) // Rotación izquierda superior
+                    )
+                }
+
+                // Textos y Botones del Encabezado
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -157,7 +189,7 @@ fun Register(
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF0C2E5C),
-                        unfocusedBorderColor = Color(0xFF0C2E5C),
+                        unfocusedBorderColor = Color(0xFF0C2E5C), // Borde azul simulando enfoque
                         focusedLabelColor = Color(0xFF0C2E5C),
                         unfocusedLabelColor = Color(0xFF0C2E5C)
                     ),
@@ -234,6 +266,7 @@ fun Register(
                 Text("Categoría del participante", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF222222))
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Opción: Socio CAPEBE (Agrandada)
                 val isSocio = uiState.categoria == "Socio CAPEBE"
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -248,7 +281,7 @@ fun Register(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable { viewModel.onCategoriaChanged("Socio CAPEBE") }
-                        .padding(horizontal = 16.dp, vertical = 14.dp)
+                        .padding(horizontal = 16.dp, vertical = 18.dp) // Aumentado padding vertical para hacerlo más grande
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -267,6 +300,7 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Opción: Beneficiario (Agrandada)
                 val isBeneficiario = uiState.categoria == "Beneficiario"
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -281,7 +315,7 @@ fun Register(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable { viewModel.onCategoriaChanged("Beneficiario") }
-                        .padding(horizontal = 16.dp, vertical = 14.dp)
+                        .padding(horizontal = 16.dp, vertical = 18.dp) // Aumentado padding vertical para hacerlo más grande
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -291,6 +325,7 @@ fun Register(
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
+                        // Texto completo
                         Text("Beneficiario de Bienestar BancoEstado", fontSize = 14.sp, fontWeight = if (isBeneficiario) FontWeight.Bold else FontWeight.Normal, color = if (isBeneficiario) Color(0xFF0C2E5C) else Color(0xFF5A5A5A))
                     }
                     if (isBeneficiario) {
@@ -318,29 +353,17 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón Principal
+                // Botón Principal: Sólido Material 3
                 Button(
                     onClick = { viewModel.onRegisterClick(context, onSuccess = onSuccess) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
-                        .shadow(elevation = 10.dp, shape = RoundedCornerShape(28.dp), spotColor = Color(0xFF0C2E5C)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                    contentPadding = PaddingValues(),
+                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(28.dp), spotColor = Color(0xFF0C2E5C)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0C2E5C)), // Color sólido sin degradado
                     shape = RoundedCornerShape(28.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFF092A59), Color(0xFF194A8D))
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "Crear cuenta", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    }
+                    Text(text = "Crear cuenta", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp)) // Espaciado inferior de la lista
