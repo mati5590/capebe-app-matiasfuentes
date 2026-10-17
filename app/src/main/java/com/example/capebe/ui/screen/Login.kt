@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -102,34 +101,29 @@ fun Login(
         }
     }
 
-    // CONTENEDOR PRINCIPAL
+    // CONTENEDOR PRINCIPAL: Fondo Blanco Limpio
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            // IMPORTANTE: Los paddings van ANTES del drawBehind para que las coordenadas coincidan
             .statusBarsPadding()
             .navigationBarsPadding()
             .drawBehind {
-                val strokeColor = Color(0xFFE2E8F0)
-                // Centro exacto alineado matemáticamente con la caja del avión (X=68dp, Y=100dp)
+                val strokeColor = Color(0xFFF1F5F9) // Gris ultra suave para la línea sutil
                 val circleCenter = androidx.compose.ui.geometry.Offset(
-                    x = size.width - 68.dp.toPx(),
+                    x = size.width - 50.dp.toPx(),
                     y = 100.dp.toPx()
                 )
-
-                drawCircle(color = strokeColor, radius = 55.dp.toPx(), center = circleCenter, style = Stroke(width = 2f))
-                drawCircle(color = strokeColor, radius = 110.dp.toPx(), center = circleCenter, style = Stroke(width = 2f))
-                drawCircle(color = strokeColor, radius = 165.dp.toPx(), center = circleCenter, style = Stroke(width = 2f))
+                // Un solo anillo sutil como en el diseño minimalista
+                drawCircle(color = strokeColor, radius = 110.dp.toPx(), center = circleCenter, style = Stroke(width = 3f))
             }
     ) {
-        // Círculo celeste con el avión (Más arriba y enlazado al centro del radar)
+        // Círculo celeste con el avión rotado en la esquina
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                // Offset Y bajado a 62dp (Centro = 62 + 38 de radio = 100dp exactos)
-                .offset(x = (-30).dp, y = 62.dp)
+                .offset(x = (-24).dp, y = 62.dp)
                 .size(76.dp)
                 .clip(CircleShape)
                 .background(Color(0xFFE8F1FA))
@@ -140,7 +134,7 @@ fun Login(
                 tint = Color(0xFF0C2E5C),
                 modifier = Modifier
                     .size(36.dp)
-                    .rotate(-90f) // Esto rota el avión para que apunte hacia la izquierda-arriba
+                    .rotate(-45f) // Rotación apuntando hacia la izquierda superior
             )
         }
 
@@ -160,7 +154,7 @@ fun Login(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(56.dp)
-                        .shadow(elevation = 16.dp, shape = RoundedCornerShape(14.dp), spotColor = Color(0xFF0C2E5C))
+                        .shadow(elevation = 12.dp, shape = RoundedCornerShape(14.dp), spotColor = Color(0xFF0C2E5C))
                         .background(Color(0xFF0C2E5C), RoundedCornerShape(14.dp))
                 ) {
                     Icon(imageVector = Icons.Default.Flight, contentDescription = "Vuelo", tint = Color.White, modifier = Modifier.size(28.dp))
@@ -168,20 +162,20 @@ fun Login(
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(text = "CAPEBE", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF0C2E5C), letterSpacing = 2.sp)
-                    Text(text = "Club Aéreo del Personal de BancoEstado", fontSize = 11.sp, color = Color(0xFF5A5A5A))
+                    Text(text = "Club Aéreo del Personal de\nBancoEstado", fontSize = 11.sp, color = Color(0xFF5A5A5A), lineHeight = 14.sp)
                 }
             }
 
             Spacer(modifier = Modifier.height(60.dp))
 
             // Títulos de bienvenida
-            Text(text = "¡Bienvenido a CAPEBE!", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF0C2E5C))
+            Text(text = "¡Bienvenido a CAPEBE!", fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF0C2E5C))
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = "Accede a tu cuenta y prepárate para tu próxima experiencia de vuelo", fontSize = 15.sp, color = Color(0xFF5A5A5A), lineHeight = 22.sp)
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Input: Correo
+            // Input: Correo (Borde azul destacado)
             OutlinedTextField(
                 value = uiState.email,
                 onValueChange = { viewModel.onEmailChanged(it) },
@@ -191,7 +185,7 @@ fun Login(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF0C2E5C),
-                    unfocusedBorderColor = Color(0xFF0C2E5C),
+                    unfocusedBorderColor = Color(0xFF0C2E5C), // Borde azul por defecto simulando enfoque activo
                     focusedLabelColor = Color(0xFF0C2E5C),
                     unfocusedLabelColor = Color(0xFF0C2E5C)
                 ),
@@ -201,7 +195,7 @@ fun Login(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Input: Contraseña
+            // Input: Contraseña (Borde gris normal)
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = { viewModel.onPasswordChanged(it) },
@@ -242,29 +236,17 @@ fun Login(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón Principal con Degradado y Sombra
+            // Botón Principal: Sólido Material 3
             Button(
                 onClick = { viewModel.onLoginClick(context, onSuccess = onSuccess) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .shadow(elevation = 10.dp, shape = RoundedCornerShape(28.dp), spotColor = Color(0xFF0C2E5C)),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                contentPadding = PaddingValues(),
+                    .shadow(elevation = 6.dp, shape = RoundedCornerShape(28.dp), spotColor = Color(0xFF0C2E5C)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0C2E5C)), // Color sólido
                 shape = RoundedCornerShape(28.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(Color(0xFF092A59), Color(0xFF194A8D))
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Iniciar sesión", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
+                Text(text = "Iniciar sesión", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -283,7 +265,7 @@ fun Login(
                 }
             }
 
-            // Espacio de resguardo para que el scroll no quede tapado por el botón inferior
+            // Espacio de resguardo para que el scroll termine antes del botón de registro
             Spacer(modifier = Modifier.height(100.dp))
         }
 
