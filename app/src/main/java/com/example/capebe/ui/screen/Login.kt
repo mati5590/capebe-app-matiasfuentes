@@ -1,6 +1,7 @@
 package com.example.capebe.ui.screen
 
 
+
 import android.content.Context
 import android.widget.Toast
 import androidx.biometric.BiometricPrompt
@@ -42,6 +43,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.capebe.ui.viewmodel.LoginViewModel
 
+// Pantalla principal de inicio de sesión (Login).
+// Gestiona el estado de autenticación (correo/contraseña) y proporciona una
+// integración nativa con BiometricPrompt para acceso mediante huella dactilar.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Login(
@@ -57,7 +61,9 @@ fun Login(
     var rememberMe by remember { mutableStateOf(true) }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // BLOQUE MÁGICO: AUTO INICIO DE SESIÓN CON HUELLA AL ABRIR LA APP
+    // Bloque de Autenticación Biométrica (Auto-Login).
+    // Verifica SharedPreferences al iniciar; si existe un usuario guardado,
+    // lanza automáticamente el prompt de huella dactilar.
     LaunchedEffect(Unit) {
         val sharedPref = context.getSharedPreferences("CAPEBE_PREFS", Context.MODE_PRIVATE)
         val savedEmail = sharedPref.getString("USER_EMAIL", null)
@@ -95,13 +101,13 @@ fun Login(
         }
     }
 
+    // Observador reactivo de errores generados por el ViewModel.
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }
 
-    // CONTENEDOR PRINCIPAL: Fondo Blanco Limpio
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -109,16 +115,14 @@ fun Login(
             .statusBarsPadding()
             .navigationBarsPadding()
             .drawBehind {
-                val strokeColor = Color(0xFFF1F5F9) // Gris ultra suave para la línea sutil
+                val strokeColor = Color(0xFFF1F5F9)
                 val circleCenter = androidx.compose.ui.geometry.Offset(
                     x = size.width - 50.dp.toPx(),
                     y = 100.dp.toPx()
                 )
-                // Un solo anillo sutil como en el diseño minimalista
                 drawCircle(color = strokeColor, radius = 110.dp.toPx(), center = circleCenter, style = Stroke(width = 3f))
             }
     ) {
-        // Círculo celeste con el avión rotado en la esquina
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -134,11 +138,10 @@ fun Login(
                 tint = Color(0xFF0C2E5C),
                 modifier = Modifier
                     .size(36.dp)
-                    .rotate(-45f) // Rotación apuntando hacia la izquierda superior
+                    .rotate(-45f)
             )
         }
 
-        // Formulario Scrolleable
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -148,7 +151,6 @@ fun Login(
         ) {
             Spacer(modifier = Modifier.height(40.dp))
 
-            // SECCIÓN SUPERIOR: Logo y Texto CAPEBE
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -168,14 +170,12 @@ fun Login(
 
             Spacer(modifier = Modifier.height(60.dp))
 
-            // Títulos de bienvenida
             Text(text = "¡Bienvenido a CAPEBE!", fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF0C2E5C))
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = "Accede a tu cuenta y prepárate para tu próxima experiencia de vuelo", fontSize = 15.sp, color = Color(0xFF5A5A5A), lineHeight = 22.sp)
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Input: Correo (Borde azul destacado)
             OutlinedTextField(
                 value = uiState.email,
                 onValueChange = { viewModel.onEmailChanged(it) },
@@ -185,7 +185,7 @@ fun Login(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF0C2E5C),
-                    unfocusedBorderColor = Color(0xFF0C2E5C), // Borde azul por defecto simulando enfoque activo
+                    unfocusedBorderColor = Color(0xFF0C2E5C),
                     focusedLabelColor = Color(0xFF0C2E5C),
                     unfocusedLabelColor = Color(0xFF0C2E5C)
                 ),
@@ -195,7 +195,6 @@ fun Login(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Input: Contraseña (Borde gris normal)
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = { viewModel.onPasswordChanged(it) },
@@ -219,7 +218,6 @@ fun Login(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Fila: Recordarme y Olvidaste contraseña
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
@@ -236,14 +234,13 @@ fun Login(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón Principal: Sólido Material 3
             Button(
                 onClick = { viewModel.onLoginClick(context, onSuccess = onSuccess) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
                     .shadow(elevation = 6.dp, shape = RoundedCornerShape(28.dp), spotColor = Color(0xFF0C2E5C)),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0C2E5C)), // Color sólido
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0C2E5C)),
                 shape = RoundedCornerShape(28.dp)
             ) {
                 Text(text = "Iniciar sesión", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
@@ -251,7 +248,6 @@ fun Login(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de Huella
             if (activity != null) {
                 OutlinedButton(
                     onClick = { viewModel.onBiometricLoginClick(context, activity, onSuccess) },
@@ -265,11 +261,9 @@ fun Login(
                 }
             }
 
-            // Espacio de resguardo para que el scroll termine antes del botón de registro
             Spacer(modifier = Modifier.height(100.dp))
         }
 
-        // TEXTO REGÍSTRATE ANCLADO AL FONDO
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)

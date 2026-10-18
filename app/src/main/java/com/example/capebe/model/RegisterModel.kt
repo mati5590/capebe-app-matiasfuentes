@@ -6,7 +6,7 @@ data class RegisterModel(
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",
-    val categoria: String = "Socio CAPEBE", // Por defecto según el diseño
+    val categoria: String = "Socio CAPEBE",
     val terminosAceptados: Boolean = false,
     val errorMessage: String? = null
 )

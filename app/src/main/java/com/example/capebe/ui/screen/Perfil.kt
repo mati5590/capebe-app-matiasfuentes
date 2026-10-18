@@ -28,6 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Pantalla que muestra el perfil del usuario activo.
+// Genera un avatar con iniciales dinámicas y presenta la información personal en formato de lista.
+// También gestiona el cierre de sesión y la navegación principal.
 @Composable
 fun Perfil(
     nombreCompleto: String,
@@ -37,7 +40,7 @@ fun Perfil(
     onEditarClick: () -> Unit,
     onCerrarSesionClick: () -> Unit,
     onNavigateHome: () -> Unit,
-    onNavigateActividades: () -> Unit // <-- 1. Nuevo parámetro
+    onNavigateActividades: () -> Unit
 ) {
     val palabras = nombreCompleto.trim().split(" ").filter { it.isNotEmpty() }
     val iniciales = if (palabras.size >= 2) {
@@ -53,7 +56,7 @@ fun Perfil(
             CapebeBottomNavigation(
                 currentTab = "Perfil",
                 onNavigateHome = onNavigateHome,
-                onNavigateActividades = onNavigateActividades, // <-- 2. Conectado a la barra
+                onNavigateActividades = onNavigateActividades,
                 onNavigatePerfil = { }
             )
         },
@@ -137,6 +140,8 @@ fun Perfil(
     }
 }
 
+// Componente visual reutilizable que estructura cada fila de información dentro de la tarjeta de perfil.
+// Combina un ícono destacado, una etiqueta descriptiva y el valor del dato.
 @Composable
 fun InfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {

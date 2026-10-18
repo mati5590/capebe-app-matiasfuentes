@@ -6,16 +6,19 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-// CORRECCIÓN 1: Cambiar myappnavigation por capebe
 import com.example.capebe.data.local.dao.UsuarioDao
 import com.example.capebe.data.local.entity.UsuarioEntity
 
+// Configuración principal de la base de datos local utilizando Room (SQLite).
+// Implementa el patrón Singleton (a través del companion object) para asegurar que
+// solo exista una única instancia de la base de datos activa en toda la aplicación,
+// previniendo fugas de memoria y garantizando un acceso seguro y concurrente a los datos.
 @Database(entities = [UsuarioEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun usuarioDao(): UsuarioDao
 
-    companion object {          // propio del patrón singleton
+    companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -24,7 +27,6 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    // CORRECCIÓN 2: Cambiar el nombre de la BD
                     "capebe_database.db"
                 ).build()
                 INSTANCE = instance
