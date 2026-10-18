@@ -1,7 +1,6 @@
 package com.example.capebe.ui.screen
 
 
-
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +27,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -53,13 +53,21 @@ fun Register(
     var passVisible by remember { mutableStateOf(false) }
     var confirmPassVisible by remember { mutableStateOf(false) }
 
+    // ==========================================
+    // REGLAS DE VALIDACIÓN EN TIEMPO REAL
+    // ==========================================
+    val isNameValid = uiState.nombreCompleto.isNotBlank() && uiState.nombreCompleto.all { it.isLetter() || it.isWhitespace() }
+    val isRutValid = uiState.rut.matches(Regex("^[0-9]{7,8}-[0-9Kk]$"))
+    val isEmailValid = uiState.email.isNotBlank() && android.util.Patterns.EMAIL_ADDRESS.matcher(uiState.email).matches()
+    val isPasswordValid = uiState.password.length >= 8 && uiState.password.any { it.isDigit() } && uiState.password.any { it.isLetter() }
+    val isConfirmValid = uiState.confirmPassword.isNotEmpty() && uiState.confirmPassword == uiState.password && isPasswordValid
+
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }
 
-    // CONTENEDOR RAÍZ
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -69,24 +77,20 @@ fun Register(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // ==========================================
-            // 1. ENCABEZADO FIJO (Minimalista con Radar Sutil)
-            // ==========================================
+            // 1. ENCABEZADO FIJO
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clipToBounds() // Candado visual para que la línea del radar no toque el formulario
+                    .clipToBounds()
                     .drawBehind {
-                        val strokeColor = Color(0xFFF1F5F9) // Gris ultra suave para la línea sutil
+                        val strokeColor = Color(0xFFF1F5F9)
                         val circleCenter = androidx.compose.ui.geometry.Offset(
                             x = size.width - 50.dp.toPx(),
                             y = 74.dp.toPx()
                         )
-                        // Un solo anillo sutil como en el diseño minimalista
                         drawCircle(color = strokeColor, radius = 110.dp.toPx(), center = circleCenter, style = Stroke(width = 3f))
                     }
             ) {
-                // Círculo celeste con el avión rotado en la esquina
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -100,11 +104,10 @@ fun Register(
                         imageVector = Icons.Default.Flight,
                         contentDescription = null,
                         tint = Color(0xFF0C2E5C),
-                        modifier = Modifier.size(36.dp).rotate(-45f) // Rotación izquierda superior
+                        modifier = Modifier.size(36.dp).rotate(-45f)
                     )
                 }
 
-                // Textos y Botones del Encabezado
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -112,7 +115,6 @@ fun Register(
                 ) {
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Solo Botón Atrás
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Start,
@@ -140,17 +142,15 @@ fun Register(
                         color = Color(0xFF5A5A5A),
                         lineHeight = 20.sp
                     )
-                    Spacer(modifier = Modifier.height(24.dp)) // Espacio de seguridad antes del formulario
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
 
-            // ==========================================
-            // 2. FORMULARIO MÓVIL (Solo esto hace scroll)
-            // ==========================================
+            // 2. FORMULARIO MÓVIL
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Toma todo el espacio disponible en medio
+                    .weight(1f)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.Start
@@ -164,8 +164,12 @@ fun Register(
                     label = { Text("Nombre completo") },
                     leadingIcon = { Icon(Icons.Outlined.Person, null, tint = Color.Gray) },
                     trailingIcon = {
-                        if (uiState.nombreCompleto.isNotBlank()) {
-                            Icon(Icons.Default.CheckCircleOutline, contentDescription = null, tint = Color(0xFF198754))
+                        if (isNameValid) Icon(Icons.Default.CheckCircle, null, tint = Color(0xFF198754))
+                    },
+                    isError = uiState.nombreCompleto.isNotEmpty() && !isNameValid,
+                    supportingText = {
+                        if (uiState.nombreCompleto.isNotEmpty() && !isNameValid) {
+                            Text("Solo se permiten letras y espacios.", color = Color(0xFFB3261E))
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -177,27 +181,34 @@ fun Register(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Input: RUT
                 OutlinedTextField(
                     value = uiState.rut,
                     onValueChange = { viewModel.onRutChanged(it) },
-                    label = { Text("RUT", color = Color(0xFF0C2E5C)) },
+                    label = { Text("RUT", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Outlined.Badge, null, tint = Color.Gray) },
+                    trailingIcon = {
+                        if (isRutValid) Icon(Icons.Default.CheckCircle, null, tint = Color(0xFF198754))
+                    },
+                    isError = uiState.rut.isNotEmpty() && !isRutValid,
+                    supportingText = {
+                        if (uiState.rut.isNotEmpty() && !isRutValid) {
+                            Text("Debe incluir guion. Ej: 12345678-9", color = Color(0xFFB3261E))
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF0C2E5C),
-                        unfocusedBorderColor = Color(0xFF0C2E5C), // Borde azul simulando enfoque
-                        focusedLabelColor = Color(0xFF0C2E5C),
-                        unfocusedLabelColor = Color(0xFF0C2E5C)
+                        unfocusedBorderColor = Color(0xFFCCCCCC)
                     ),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Input: Correo
                 OutlinedTextField(
@@ -205,6 +216,15 @@ fun Register(
                     onValueChange = { viewModel.onEmailChanged(it) },
                     label = { Text("Correo electrónico", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Outlined.Email, null, tint = Color.Gray) },
+                    trailingIcon = {
+                        if (isEmailValid) Icon(Icons.Default.CheckCircle, null, tint = Color(0xFF198754))
+                    },
+                    isError = uiState.email.isNotEmpty() && !isEmailValid,
+                    supportingText = {
+                        if (uiState.email.isNotEmpty() && !isEmailValid) {
+                            Text("Ingresa un correo válido (ej: usuario@correo.com)", color = Color(0xFFB3261E))
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -214,7 +234,7 @@ fun Register(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Input: Contraseña
                 OutlinedTextField(
@@ -223,9 +243,20 @@ fun Register(
                     label = { Text("Contraseña", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Outlined.Lock, null, tint = Color.Gray) },
                     trailingIcon = {
-                        IconButton(onClick = { passVisible = !passVisible }) {
-                            Icon(if (passVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, null, tint = Color.Gray)
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 4.dp)) {
+                            if (isPasswordValid) {
+                                Icon(Icons.Default.CheckCircle, null, tint = Color(0xFF198754), modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                            }
+                            IconButton(onClick = { passVisible = !passVisible }, modifier = Modifier.size(32.dp)) {
+                                Icon(if (passVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                            }
                         }
+                    },
+                    isError = uiState.password.isNotEmpty() && !isPasswordValid,
+                    supportingText = {
+                        val textColor = if (uiState.password.isNotEmpty() && !isPasswordValid) Color(0xFFB3261E) else Color.Gray
+                        Text("Mínimo 8 caracteres, al menos 1 letra y 1 número.", color = textColor)
                     },
                     visualTransformation = if (passVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
@@ -237,7 +268,7 @@ fun Register(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Input: Confirmar Contraseña
                 OutlinedTextField(
@@ -246,8 +277,20 @@ fun Register(
                     label = { Text("Confirmar contraseña", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Outlined.Lock, null, tint = Color.Gray) },
                     trailingIcon = {
-                        IconButton(onClick = { confirmPassVisible = !confirmPassVisible }) {
-                            Icon(if (confirmPassVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, null, tint = Color.Gray)
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 4.dp)) {
+                            if (isConfirmValid) {
+                                Icon(Icons.Default.CheckCircle, null, tint = Color(0xFF198754), modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                            }
+                            IconButton(onClick = { confirmPassVisible = !confirmPassVisible }, modifier = Modifier.size(32.dp)) {
+                                Icon(if (confirmPassVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff, null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                            }
+                        }
+                    },
+                    isError = uiState.confirmPassword.isNotEmpty() && uiState.confirmPassword != uiState.password,
+                    supportingText = {
+                        if (uiState.confirmPassword.isNotEmpty() && uiState.confirmPassword != uiState.password) {
+                            Text("Las contraseñas no coinciden.", color = Color(0xFFB3261E))
                         }
                     },
                     visualTransformation = if (confirmPassVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -260,13 +303,12 @@ fun Register(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done)
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Categoría del participante
                 Text("Categoría del participante", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF222222))
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Opción: Socio CAPEBE (Agrandada)
                 val isSocio = uiState.categoria == "Socio CAPEBE"
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -281,7 +323,7 @@ fun Register(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable { viewModel.onCategoriaChanged("Socio CAPEBE") }
-                        .padding(horizontal = 16.dp, vertical = 18.dp) // Aumentado padding vertical para hacerlo más grande
+                        .padding(horizontal = 16.dp, vertical = 18.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -300,7 +342,6 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Opción: Beneficiario (Agrandada)
                 val isBeneficiario = uiState.categoria == "Beneficiario"
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -315,7 +356,7 @@ fun Register(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable { viewModel.onCategoriaChanged("Beneficiario") }
-                        .padding(horizontal = 16.dp, vertical = 18.dp) // Aumentado padding vertical para hacerlo más grande
+                        .padding(horizontal = 16.dp, vertical = 18.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -325,7 +366,6 @@ fun Register(
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
-                        // Texto completo
                         Text("Beneficiario de Bienestar BancoEstado", fontSize = 14.sp, fontWeight = if (isBeneficiario) FontWeight.Bold else FontWeight.Normal, color = if (isBeneficiario) Color(0xFF0C2E5C) else Color(0xFF5A5A5A))
                     }
                     if (isBeneficiario) {
@@ -353,25 +393,29 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón Principal: Sólido Material 3
+                // Botón Principal
                 Button(
-                    onClick = { viewModel.onRegisterClick(context, onSuccess = onSuccess) },
+                    onClick = {
+                        if (isNameValid && isRutValid && isEmailValid && isConfirmValid && uiState.terminosAceptados) {
+                            viewModel.onRegisterClick(context, onSuccess = onSuccess)
+                        } else {
+                            Toast.makeText(context, "Por favor, completa correctamente todos los campos y acepta los términos.", Toast.LENGTH_LONG).show()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                         .shadow(elevation = 6.dp, shape = RoundedCornerShape(28.dp), spotColor = Color(0xFF0C2E5C)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0C2E5C)), // Color sólido sin degradado
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0C2E5C)),
                     shape = RoundedCornerShape(28.dp)
                 ) {
                     Text(text = "Crear cuenta", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
 
-                Spacer(modifier = Modifier.height(32.dp)) // Espaciado inferior de la lista
+                Spacer(modifier = Modifier.height(32.dp))
             }
 
-            // ==========================================
-            // 3. PIE FIJO (No se mueve con el scroll)
-            // ==========================================
+            // 3. PIE FIJO
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
