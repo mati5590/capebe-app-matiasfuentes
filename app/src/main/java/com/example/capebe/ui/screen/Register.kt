@@ -27,7 +27,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.capebe.ui.viewmodel.RegisterViewModel
 
+// Pantalla de creación de cuenta (Registro).
+// Implementa validaciones en tiempo real (Client-Side Validation) para asegurar la integridad
+// de los datos (nombre, RUT, correo, contraseña segura) antes de enviarlos al ViewModel.
+// Estructura su diseño dividiendo un encabezado decorativo, un formulario scrolleable y un pie fijo.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Register(
@@ -53,9 +56,6 @@ fun Register(
     var passVisible by remember { mutableStateOf(false) }
     var confirmPassVisible by remember { mutableStateOf(false) }
 
-    // ==========================================
-    // REGLAS DE VALIDACIÓN EN TIEMPO REAL
-    // ==========================================
     val isNameValid = uiState.nombreCompleto.isNotBlank() && uiState.nombreCompleto.all { it.isLetter() || it.isWhitespace() }
     val isRutValid = uiState.rut.matches(Regex("^[0-9]{7,8}-[0-9Kk]$"))
     val isEmailValid = uiState.email.isNotBlank() && android.util.Patterns.EMAIL_ADDRESS.matcher(uiState.email).matches()
@@ -77,7 +77,6 @@ fun Register(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // 1. ENCABEZADO FIJO
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -146,7 +145,6 @@ fun Register(
                 }
             }
 
-            // 2. FORMULARIO MÓVIL
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -157,7 +155,6 @@ fun Register(
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Input: Nombre Completo
                 OutlinedTextField(
                     value = uiState.nombreCompleto,
                     onValueChange = { viewModel.onNombreCompletoChanged(it) },
@@ -183,7 +180,6 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Input: RUT
                 OutlinedTextField(
                     value = uiState.rut,
                     onValueChange = { viewModel.onRutChanged(it) },
@@ -210,7 +206,6 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Input: Correo
                 OutlinedTextField(
                     value = uiState.email,
                     onValueChange = { viewModel.onEmailChanged(it) },
@@ -236,7 +231,6 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Input: Contraseña
                 OutlinedTextField(
                     value = uiState.password,
                     onValueChange = { viewModel.onPasswordChanged(it) },
@@ -270,7 +264,6 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Input: Confirmar Contraseña
                 OutlinedTextField(
                     value = uiState.confirmPassword,
                     onValueChange = { viewModel.onConfirmPasswordChanged(it) },
@@ -305,7 +298,6 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Categoría del participante
                 Text("Categoría del participante", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF222222))
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -375,7 +367,6 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Checkbox Términos
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked = uiState.terminosAceptados,
@@ -393,7 +384,6 @@ fun Register(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón Principal
                 Button(
                     onClick = {
                         if (isNameValid && isRutValid && isEmailValid && isConfirmValid && uiState.terminosAceptados) {
@@ -415,7 +405,6 @@ fun Register(
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
-            // 3. PIE FIJO
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

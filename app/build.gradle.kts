@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.capebe"
-    // Simplificamos el SDK a 35 para evitar conflictos de metadatos AAR
+
     compileSdk = 37
 
     defaultConfig {
@@ -70,8 +70,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
 
-// --- CONFIGURACIÓN DE KSP ---
-// Aquí le decimos a Room que genere Kotlin nativo para evitar errores con las corrutinas
+
 ksp {
     arg("room.generateKotlin", "true")
 }

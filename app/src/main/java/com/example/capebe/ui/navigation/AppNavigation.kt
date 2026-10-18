@@ -28,11 +28,15 @@ import com.example.capebe.ui.viewmodel.LoginViewModel
 import com.example.capebe.ui.viewmodel.RegisterViewModel
 import com.example.capebe.ui.viewmodel.SessionViewModel
 
+// Grafo principal de navegación de la aplicación (NavHost).
+// Define las rutas y transiciones animadas entre pantallas, gestionando la instanciación
+// de los ViewModels y el flujo de sesión. Se encarga de persistir de forma segura los datos
+// del usuario en SharedPreferences al autenticarse y de purgar la caché local al cerrar sesión.
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val sessionViewModel: SessionViewModel = viewModel()
-    val context = LocalContext.current // Necesario para acceder a las preferencias del teléfono
+    val context = LocalContext.current
 
     NavHost(
         navController = navController,
@@ -49,7 +53,6 @@ fun AppNavigation() {
                 viewModel = loginViewModel,
                 onRegisterClick = { navController.navigate("registro") },
                 onSuccess = { loggedUser ->
-                    // 1. GUARDAMOS EL USUARIO EN LA MEMORIA DEL TELÉFONO
                     val sharedPref = context.getSharedPreferences("CAPEBE_PREFS", Context.MODE_PRIVATE)
                     sharedPref.edit().apply {
                         putInt("USER_ID", loggedUser.id)
@@ -105,7 +108,6 @@ fun AppNavigation() {
                 categoria = usuarioActual?.categoria ?: "Socio",
                 onEditarClick = { navController.navigate("editar_perfil") },
                 onCerrarSesionClick = {
-                    // 2. BORRAMOS LA MEMORIA SI DECIDE CERRAR SESIÓN MANUALMENTE
                     val sharedPref = context.getSharedPreferences("CAPEBE_PREFS", Context.MODE_PRIVATE)
                     sharedPref.edit().clear().apply()
 

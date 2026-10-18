@@ -26,16 +26,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Estructura de datos temporal para la UI
 data class Jornada(
     val id: Int,
     val titulo: String,
     val fecha: String,
     val ubicacion: String,
     val descripcion: String?,
-    val estado: String // "Abiertas", "Cerrada", "Finalizada"
+    val estado: String
 )
 
+// Pantalla principal de Actividades. Utiliza un Scaffold para anclar la barra de navegación inferior
+// y maneja un estado reactivo ("filtroSeleccionado") para filtrar dinámicamente la lista de jornadas.
 @Composable
 fun Actividades(
     onNavigateHome: () -> Unit,
@@ -44,7 +45,6 @@ fun Actividades(
     var filtroSeleccionado by remember { mutableStateOf("Todas") }
     val filtros = listOf("Todas", "Abiertas", "Cerradas", "Finalizadas")
 
-    // Lista de jornadas basada en tu mockup
     val jornadas = listOf(
         Jornada(1, "Jornada de Primavera", "Sáb 24 oct 2026", "Santiago/Tobalaba", "Vuelos recreativos de bienvenida para socios y beneficiarios. Cupos limitados.", "Abiertas"),
         Jornada(2, "Jornada Costera", "Sáb 14 nov 2026", "Concepción/Talcahuano", "Jornada en la base de Talcahuano. El plazo de inscripción ya terminó.", "Cerrada"),
@@ -57,7 +57,7 @@ fun Actividades(
                 currentTab = "Actividades",
                 onNavigateHome = onNavigateHome,
                 onNavigatePerfil = onNavigatePerfil,
-                onNavigateActividades = { /* Ya estamos aquí */ }
+                onNavigateActividades = { }
             )
         },
         containerColor = Color(0xFFFAFAFA)
@@ -70,7 +70,6 @@ fun Actividades(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Título Superior
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -82,7 +81,6 @@ fun Actividades(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Filtros (Scroll horizontal)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,7 +99,6 @@ fun Actividades(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Lista de Tarjetas
             Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                 jornadas.forEach { jornada ->
                     JornadaItemCard(jornada)
@@ -113,6 +110,8 @@ fun Actividades(
     }
 }
 
+// Componente visual (Botón ovalado) para la barra de filtros.
+// Cambia su apariencia (color, borde e ícono) si su estado es 'seleccionado'.
 @Composable
 fun FiltroChip(texto: String, seleccionado: Boolean, onClick: () -> Unit) {
     Surface(
@@ -139,6 +138,8 @@ fun FiltroChip(texto: String, seleccionado: Boolean, onClick: () -> Unit) {
     }
 }
 
+// Tarjeta individual que muestra los detalles de una jornada.
+// Contiene lógica condicional para mostrar u ocultar botones, colores e íconos dependiendo de si la jornada está "Abierta", "Cerrada" o "Finalizada".
 @Composable
 fun JornadaItemCard(jornada: Jornada) {
     val (bgColor, textColor, icon, label) = when (jornada.estado) {
@@ -154,7 +155,6 @@ fun JornadaItemCard(jornada: Jornada) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            // Etiqueta de Estado
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(bgColor as Color).padding(horizontal = 10.dp, vertical = 6.dp)
@@ -168,7 +168,6 @@ fun JornadaItemCard(jornada: Jornada) {
             Text(text = jornada.titulo, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF222222))
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Fecha y Ubicación
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.Event, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
@@ -179,7 +178,6 @@ fun JornadaItemCard(jornada: Jornada) {
                 Text(text = jornada.ubicacion, fontSize = 13.sp, color = Color(0xFF5A5A5A))
             }
 
-            // Descripción (Si existe)
             if (jornada.descripcion != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(text = jornada.descripcion, fontSize = 14.sp, color = Color(0xFF5A5A5A), lineHeight = 20.sp)
@@ -187,7 +185,6 @@ fun JornadaItemCard(jornada: Jornada) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botones
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = if (jornada.estado == "Abiertas") Arrangement.SpaceBetween else Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                 if (jornada.estado == "Abiertas") {
                     Button(

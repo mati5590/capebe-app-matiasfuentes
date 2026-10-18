@@ -1,6 +1,7 @@
 package com.example.capebe.ui.screen
 
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,10 +29,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Composable principal que estructura la pantalla de Inicio ("Home").
+// Orquesta los diferentes componentes (Header, Banner, Tarjetas) y el menú de navegación inferior.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
-    userName: String = "Valentina",
+    userName: String = "Matias",
     onNavigateToPerfil: () -> Unit = {},
     onNavigateToActividades: () -> Unit = {}
 ) {
@@ -72,6 +75,8 @@ fun Home(
     }
 }
 
+// Encabezado superior personalizado que muestra el logo de CAPEBE, un saludo al usuario logueado
+// y botones de acceso rápido a notificaciones y perfil.
 @Composable
 fun HeaderSection(userName: String, onNavigateToPerfil: () -> Unit) {
     val iniciales = if (userName.length >= 2) userName.take(2).uppercase() else "VR"
@@ -114,6 +119,8 @@ fun HeaderSection(userName: String, onNavigateToPerfil: () -> Unit) {
     Text(text = "Prepárate para tu próxima experiencia de vuelo", fontSize = 14.sp, color = Color(0xFF5A5A5A))
 }
 
+// Componente visual de alto impacto (Hero) ubicado en la parte superior del Home.
+// Utiliza Canvas ('drawBehind') para dibujar anillos transparentes decorativos.
 @Composable
 fun HeroBanner(onNavigateToActividades: () -> Unit) {
     Box(
@@ -124,7 +131,6 @@ fun HeroBanner(onNavigateToActividades: () -> Unit) {
             .drawBehind {
                 val circleCenter = androidx.compose.ui.geometry.Offset(size.width * 0.85f, size.height * 0.5f)
 
-                // Dibujamos solo los 3 círculos concéntricos con transparencia blanca
                 drawCircle(
                     color = Color.White.copy(alpha = 0.03f),
                     radius = size.height * 1.1f,
@@ -140,8 +146,6 @@ fun HeroBanner(onNavigateToActividades: () -> Unit) {
                     radius = size.height * 0.4f,
                     center = circleCenter
                 )
-
-                // (La línea segmentada curva fue eliminada de aquí)
             }
             .padding(24.dp)
     ) {
@@ -175,6 +179,7 @@ fun HeroBanner(onNavigateToActividades: () -> Unit) {
     }
 }
 
+// Componente utilitario para crear títulos de sección con un enlace de acción a la derecha.
 @Composable
 fun SectionHeader(title: String, actionText: String, onActionClick: () -> Unit = {}) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -185,6 +190,7 @@ fun SectionHeader(title: String, actionText: String, onActionClick: () -> Unit =
     }
 }
 
+// Tarjeta que muestra un resumen de la próxima jornada de vuelo disponible.
 @Composable
 fun JornadaCard() {
     Card(
@@ -276,6 +282,8 @@ fun JornadaCard() {
     }
 }
 
+// Componente visual que representa un estado vacío ("Empty State")
+// Utiliza Canvas (drawRoundRect) para crear un borde punteado (dashPathEffect).
 @Composable
 fun EmptyInscripcionesCard() {
     val strokeColor = Color(0xFFB0CDE6)
@@ -315,6 +323,8 @@ fun EmptyInscripcionesCard() {
     }
 }
 
+// Menú de navegación inferior de la aplicación (Bottom Navigation Bar).
+// Gestiona la transición y el estado visual ("seleccionado") entre las secciones principales.
 @Composable
 fun CapebeBottomNavigation(
     currentTab: String,
