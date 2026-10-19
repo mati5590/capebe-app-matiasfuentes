@@ -86,15 +86,23 @@ fun AppNavigation() {
 
             Home(
                 userName = primerNombre,
-                onNavigateToPerfil = { navController.navigate("perfil") },
-                onNavigateToActividades = { navController.navigate("actividades") }
+                onNavigateToPerfil = {
+                    navController.navigate("perfil") { popUpTo("home") }
+                },
+                onNavigateToActividades = {
+                    navController.navigate("actividades") { popUpTo("home") }
+                }
             )
         }
 
         composable("actividades") {
             Actividades(
-                onNavigateHome = { navController.navigate("home") { popUpTo(0) } },
-                onNavigatePerfil = { navController.navigate("perfil") { popUpTo(0) } }
+                onNavigateHome = {
+                    navController.navigate("home") { popUpTo(0) }
+                },
+                onNavigatePerfil = {
+                    navController.navigate("perfil") { popUpTo("home") }
+                }
             )
         }
 
@@ -116,8 +124,12 @@ fun AppNavigation() {
                         popUpTo(0)
                     }
                 },
-                onNavigateHome = { navController.navigateUp() },
-                onNavigateActividades = { navController.navigate("actividades") }
+                onNavigateHome = {
+                    navController.navigate("home") { popUpTo(0) }
+                },
+                onNavigateActividades = {
+                    navController.navigate("actividades") { popUpTo("home") }
+                }
             )
         }
 
