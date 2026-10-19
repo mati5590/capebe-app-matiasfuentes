@@ -1,6 +1,11 @@
 package com.example.capebe.ui.screen
 
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,8 +46,9 @@ import com.example.capebe.ui.viewmodel.RegisterViewModel
 
 // Pantalla de creación de cuenta (Registro).
 // Implementa validaciones en tiempo real (Client-Side Validation) para asegurar la integridad
-// de los datos (nombre, RUT, correo, contraseña segura) antes de enviarlos al ViewModel.
-// Estructura su diseño dividiendo un encabezado decorativo, un formulario scrolleable y un pie fijo.
+// de los datos antes de enviarlos al ViewModel.
+// INTEGRA RECURSO NATIVO DE HARDWARE: Hace uso del servicio del sistema (Vibrator Service)
+// para proveer retroalimentación háptica física cuando el usuario comete un error en el formulario.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Register(
@@ -390,6 +396,24 @@ fun Register(
                             viewModel.onRegisterClick(context, onSuccess = onSuccess)
                         } else {
                             Toast.makeText(context, "Por favor, completa correctamente todos los campos y acepta los términos.", Toast.LENGTH_LONG).show()
+
+                            // RECURSO NATIVO: Vibrar SOLO si el usuario olvidó aceptar los términos
+                            if (!uiState.terminosAceptados) {
+                                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                                    vibratorManager.defaultVibrator
+                                } else {
+                                    @Suppress("DEPRECATION")
+                                    context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                                }
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    vibrator.vibrate(VibrationEffect.createOneShot(400, VibrationEffect.DEFAULT_AMPLITUDE))
+                                } else {
+                                    @Suppress("DEPRECATION")
+                                    vibrator.vibrate(400)
+                                }
+                            }
                         }
                     },
                     modifier = Modifier
